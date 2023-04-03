@@ -2,7 +2,7 @@ from typing import Optional
 
 from pydantic import BaseModel as SCBaseModel
 
-class AtletaSchema(SCBaseModel):
+class JogoSchema(SCBaseModel):
     id: Optional[int]
     time1: int
     time2: int
