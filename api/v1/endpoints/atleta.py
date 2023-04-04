@@ -21,9 +21,10 @@ router = APIRouter()
 @router.post("/", status_code=status.HTTP_201_CREATED, response_model=AtletaSchema)
 async def post_atleta(atleta: AtletaSchema, db: AsyncSession = Depends(get_session)):
 
+
     novo_atleta = AtletaModel(nome=atleta.nome,
                               idade=atleta.idade,
-                              faceurl=atleta.face_url,
+                              face_url=atleta.face_url,
                               curso_id=atleta.curso_id,
                               modalidade_id=atleta.modalidade_id)
     db.add(novo_atleta)

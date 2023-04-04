@@ -12,9 +12,6 @@ class AtletaModel(settings.DB_BASE_MODEL):
     nome: str = Column(String(150), nullable=False)
     idade: int = Column(Integer, nullable=False)
     face_url: str = Column(String(255), nullable=True)
-    curso_id: int = Column(Integer, ForeignKey(CursoModel.id), primary_key=True)
-    modalidade_id: int = Column(Integer, ForeignKey(ModalidadeModel.id), primary_key=True)
-
-    curso = relationship('cursos', foreign_keys='atletas.curso_id')
-    modalidade = relationship('modalidade', foreign_keys='atletas.modalidade_id')
+    curso_id: int = Column(Integer, ForeignKey("cursos.id", ondelete="CASCADE"), nullable=False)
+    modalidade_id: int = Column(Integer, ForeignKey("modalidades.id", ondelete="CASCADE"), nullable=False)
 
