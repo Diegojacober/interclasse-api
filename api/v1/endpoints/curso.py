@@ -17,7 +17,8 @@ from core.deps import get_session
 
 router = APIRouter()
 
-#POST curso
+
+
 @router.post("/", status_code=status.HTTP_201_CREATED, response_model=CursoSchema)
 async def post_curso(curso: CursoSchema, db: AsyncSession = Depends(get_session)):
     novo_curso = CursoModel(curso=curso.curso)
@@ -38,7 +39,8 @@ async def get_cursos(db: AsyncSession = Depends(get_session)):
 
         return cursos
 
-#GET curso
+
+
 @router.get('/{id}', response_model=CursoSchema)
 async def get_curso(id: int = Path(title="ID do curso desejado", description="Deve ser maior que 0", gt=0), db: AsyncSession = Depends(get_session)):
     async with db as session:
@@ -52,8 +54,7 @@ async def get_curso(id: int = Path(title="ID do curso desejado", description="De
             raise HTTPException(detail="Curso não encontrado", status_code=status.HTTP_404_NOT_FOUND)
 
 
-#
-#PUT curso
+
 @router.put('/{id}', response_model=CursoSchema, status_code=status.HTTP_202_ACCEPTED)
 async def put_curso(curso: CursoSchema, id: int = Path(title="ID do curso que deseja atualizar", description="Deve ser maior que 0", gt=0), db: AsyncSession = Depends(get_session)):
     async with db as session:
@@ -72,9 +73,8 @@ async def put_curso(curso: CursoSchema, id: int = Path(title="ID do curso que de
 
 
 
-#DELETE curso
 @router.delete('/{id}', status_code=status.HTTP_204_NO_CONTENT)
-async def delete_curso( id: int = Path(title="ID do curso que deseja atualizar", description="Deve ser maior que 0", gt=0), db: AsyncSession = Depends(get_session)):
+async def delete_curso( id: int = Path(title="ID do curso que deseja deletar", description="Deve ser maior que 0", gt=0), db: AsyncSession = Depends(get_session)):
     async with db as session:
         query = select(CursoModel).where(CursoModel.id == id)
         result = await session.execute(query)

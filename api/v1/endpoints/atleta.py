@@ -93,7 +93,7 @@ async def get_atletas(id: int = Path(title="ID do atleta desejado", description=
     
     
 #GET atleta by face_url
-@router.get('/face/{url_face}', response_model=List[AtletaSchema])
+@router.get('/face/{url_face}', response_model=List[AtletaSchema], description="Get atleta by face url")
 async def get_atletas(url_face: str = Path(title="url do atleta desejado", description="Deve ser a url unica da face do atleta"), db: AsyncSession = Depends(get_session)):
     async with db as session:
         query = select(AtletaModel).where(AtletaModel.face_url == url_face)
@@ -120,3 +120,39 @@ async def get_atletas(url_face: str = Path(title="url do atleta desejado", descr
         return atletas
     
     
+@router.put('/{id}', response_model=AtletaSchema, status_code=status.HTTP_202_ACCEPTED)
+async def put_atleta(atleta: AtletaSchema, id: int = Path(title="ID do atleta que deseja atualizar", description="Deve ser maior que 0", gt=0), db: AsyncSession = Depends(get_session)):
+    async with db as session:
+        query = select(AtletaModel).where(AtletaModel.id == id)
+        result = await session.execute(query)
+        atleta_up: List[AtletaModel] = result.scalars().one_or_none()
+
+        if atleta_up:
+            
+            atleta_up.face_url = atleta_up.face_url if atleta.face_url == None else atleta.face_url 
+            atleta_up.curso_id = atleta.curso_id
+            atleta_up.idade = atleta.idade
+            atleta_up.modalidade_id = atleta.modalidade_id
+            atleta_up.nome = atleta.nome
+            
+            await session.commit()
+            return atleta_up
+        else:
+            raise HTTPException(detail="Atleta não encontrado", status_code=status.HTTP_404_NOT_FOUND)
+
+
+    
+@router.delete('/{id}', status_code=status.HTTP_204_NO_CONTENT)
+async def delete_atleta( id: int = Path(title="ID do atleta que deseja deletar", description="Deve ser maior que 0", gt=0), db: AsyncSession = Depends(get_session)):
+    async with db as session:
+        query = select(AtletaModel).where(AtletaModel.id == id)
+        result = await session.execute(query)
+        atleta_del: List[AtletaModel] = result.scalars().one_or_none()
+
+        if atleta_del:
+            await session.delete(atleta_del)
+            await session.commit()
+
+            return Response(status_code=status.HTTP_204_NO_CONTENT)
+        else:
+            raise HTTPException(detail="Atleta não encontrado", status_code=status.HTTP_404_NOT_FOUND)

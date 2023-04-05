@@ -38,7 +38,7 @@ deactivate () {
 # unset irrelevant variables
 deactivate nondestructive
 
-VIRTUAL_ENV="D:\Projetos\interclasse-api\venv"
+VIRTUAL_ENV="C:\Users\57761933898\Desktop\diego\interclasse-api\venv"
 export VIRTUAL_ENV
 
 _OLD_VIRTUAL_PATH="$PATH"

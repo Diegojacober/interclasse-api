@@ -9,8 +9,8 @@ class AtletaSchema(SCBaseModel):
     face_url: Optional[str]
     curso_id: int
     modalidade_id: int
-    curso: str
-    modalidade: str
+    curso: Optional[str]
+    modalidade: Optional[str]
 
     class Config:
         orm_mode = True
