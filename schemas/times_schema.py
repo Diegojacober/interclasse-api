@@ -6,6 +6,7 @@ class TimeSchema(SCBaseModel):
     id: Optional[int]
     nome: str
     pontos: int
+    modalidade_id: int
     jogador1: int
     jogador2: Optional[int]
     jogador3: Optional[int]
@@ -27,6 +28,7 @@ class TimeSchema(SCBaseModel):
     jogador8_nome: Optional[str]
     jogador9_nome: Optional[str]
     jogador10_nome: Optional[str]
+    modalidade: Optional[str]
     
 
     class Config:

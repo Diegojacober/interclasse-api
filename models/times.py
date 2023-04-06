@@ -10,6 +10,7 @@ class TimeModel(settings.DB_BASE_MODEL):
     id: int = Column(Integer, primary_key=True, autoincrement=True)
     nome: str = Column(String(150), nullable=False)
     pontos: int = Column(Integer, nullable=False)
+    modalidade_id: int = Column(Integer, ForeignKey("modalidades.id", ondelete="CASCADE"), default=text("Null"))
     jogador1: int = Column(Integer, ForeignKey("atletas.id", ondelete="CASCADE"))
     jogador2: int = Column(Integer, ForeignKey("atletas.id", ondelete="CASCADE"), default=text("Null"))
     jogador3: int = Column(Integer, ForeignKey("atletas.id", ondelete="CASCADE"), default=text("Null"))
@@ -20,4 +21,5 @@ class TimeModel(settings.DB_BASE_MODEL):
     jogador8: int = Column(Integer, ForeignKey("atletas.id", ondelete="CASCADE"), default=text("Null"))
     jogador9: int = Column(Integer, ForeignKey("atletas.id", ondelete="CASCADE"), default=text("Null"))
     jogador10: int = Column(Integer, ForeignKey("atletas.id", ondelete="CASCADE"), default=text("Null"))
+    
 

@@ -37,6 +37,7 @@ async def post_time(time: TimeSchema, db: AsyncSession = Depends(get_session)):
                               jogador8=time.jogador8,
                               jogador9=time.jogador9,
                               jogador10=time.jogador10,
+                              modalidade_id=time.modalidade_id
                              )
     
     db.add(novo_time)
@@ -56,100 +57,70 @@ async def get_times(db: AsyncSession = Depends(get_session)):
         result = await session.execute(query)
         atletas: List[AtletaModel] = result.scalars().all()
         
+        query = select(ModalidadeModel)
+        result = await session.execute(query)
+        modalidades: List[ModalidadeModel] = result.scalars().all()
         
+        for time in times:
+            for modalidade in modalidades:
+                if modalidade.id == time.modalidade_id:
+                    time.modalidade = modalidade.nome
+            
+            for atleta in atletas:
+                if time.jogador1 == atleta.id:
+                    time.jogador1_nome = atleta.nome
+
+            for atleta in atletas:
+                if time.jogador2 == atleta.id:
+                    time.jogador2_nome = atleta.nome 
+
+            for atleta in atletas:
+                if time.jogador3 == atleta.id:
+                    time.jogador3_nome = atleta.nome 
+                    
+            for atleta in atletas:
+                if time.jogador4 == atleta.id:
+                    time.jogador4_nome = atleta.nome 
+
+            for atleta in atletas:
+                if time.jogador5 == atleta.id:
+                    time.jogador5_nome = atleta.nome 
+                    
+            for atleta in atletas:
+                if time.jogador6 == atleta.id:
+                    time.jogador6_nome = atleta.nome 
+                    
+            for atleta in atletas:
+                if time.jogador7 == atleta.id:
+                    time.jogador7_nome = atleta.nome 
+                    
+            for atleta in atletas:
+                if time.jogador8 == atleta.id:
+                    time.jogador8_nome = atleta.nome 
+                    
+            for atleta in atletas:
+                if time.jogador9 == atleta.id:
+                    time.jogador9_nome = atleta.nome 
+                    
+            for atleta in atletas:
+                if time.jogador10 == atleta.id:
+                    time.jogador10_nome = atleta.nome          
+       
         return times
 
 
-
-# #GET atleta
-# @router.get('/{id}', response_model=List[AtletaSchema])
-# async def get_atletas(id: int = Path(title="ID do atleta desejado", description="Deve ser maior que 0", gt=0), db: AsyncSession = Depends(get_session)):
-#     async with db as session:
-#         query = select(AtletaModel).where(AtletaModel.id == id)
-#         result = await session.execute(query)
-#         atletas: List[AtletaModel] = result.scalars().all()
-        
-#         query = select(CursoModel)
-#         result = await session.execute(query)
-#         cursos: List[CursoModel] = result.scalars().all()
-        
-#         query = select(ModalidadeModel)
-#         result = await session.execute(query)
-#         modalidades: List[ModalidadeModel] = result.scalars().all()
-        
-#         for atleta in atletas:
-#             for curso in cursos:
-#                 if curso.id == atleta.curso_id:
-#                    atleta.curso = curso.curso
-                   
-#             for modalidade in modalidades:
-#                 if modalidade.id == atleta.modalidade_id:
-#                     atleta.modalidade = modalidade.nome
-                   
-#         return atletas
     
-    
-# #GET atleta by face_url
-# @router.get('/face/{url_face}', response_model=List[AtletaSchema], description="Get atleta by face url")
-# async def get_atletas(url_face: str = Path(title="url do atleta desejado", description="Deve ser a url unica da face do atleta"), db: AsyncSession = Depends(get_session)):
-#     async with db as session:
-#         query = select(AtletaModel).where(AtletaModel.face_url == url_face)
-#         result = await session.execute(query)
-#         atletas: List[AtletaModel] = result.scalars().all()
-        
-#         query = select(CursoModel)
-#         result = await session.execute(query)
-#         cursos: List[CursoModel] = result.scalars().all()
-        
-#         query = select(ModalidadeModel)
-#         result = await session.execute(query)
-#         modalidades: List[ModalidadeModel] = result.scalars().all()
-        
-#         for atleta in atletas:
-#             for curso in cursos:
-#                 if curso.id == atleta.curso_id:
-#                    atleta.curso = curso.curso
-                   
-#             for modalidade in modalidades:
-#                 if modalidade.id == atleta.modalidade_id:
-#                     atleta.modalidade = modalidade.nome
-                   
-#         return atletas
-    
-    
-# @router.put('/{id}', response_model=AtletaSchema, status_code=status.HTTP_202_ACCEPTED)
-# async def put_atleta(atleta: AtletaSchema, id: int = Path(title="ID do atleta que deseja atualizar", description="Deve ser maior que 0", gt=0), db: AsyncSession = Depends(get_session)):
-#     async with db as session:
-#         query = select(AtletaModel).where(AtletaModel.id == id)
-#         result = await session.execute(query)
-#         atleta_up: List[AtletaModel] = result.scalars().one_or_none()
+@router.delete('/{id}', status_code=status.HTTP_204_NO_CONTENT)
+async def delete_time( id: int = Path(title="ID do time que deseja deletar", description="Deve ser maior que 0", gt=0), db: AsyncSession = Depends(get_session)):
+    async with db as session:
+        query = select(TimeModel).where(TimeModel.id == id)
+        result = await session.execute(query)
+        time_del: List[TimeModel] = result.scalars().one_or_none()
 
-#         if atleta_up:
-            
-#             atleta_up.face_url = atleta_up.face_url if atleta.face_url == None else atleta.face_url 
-#             atleta_up.curso_id = atleta.curso_id
-#             atleta_up.idade = atleta.idade
-#             atleta_up.modalidade_id = atleta.modalidade_id
-#             atleta_up.nome = atleta.nome
-            
-#             await session.commit()
-#             return atleta_up
-#         else:
-#             raise HTTPException(detail="Atleta não encontrado", status_code=status.HTTP_404_NOT_FOUND)
+        if time_del:
+            await session.delete(time_del)
+            await session.commit()
 
-
-    
-# @router.delete('/{id}', status_code=status.HTTP_204_NO_CONTENT)
-# async def delete_atleta( id: int = Path(title="ID do atleta que deseja deletar", description="Deve ser maior que 0", gt=0), db: AsyncSession = Depends(get_session)):
-#     async with db as session:
-#         query = select(AtletaModel).where(AtletaModel.id == id)
-#         result = await session.execute(query)
-#         atleta_del: List[AtletaModel] = result.scalars().one_or_none()
-
-#         if atleta_del:
-#             await session.delete(atleta_del)
-#             await session.commit()
-
-#             return Response(status_code=status.HTTP_204_NO_CONTENT)
-#         else:
-#             raise HTTPException(detail="Atleta não encontrado", status_code=status.HTTP_404_NOT_FOUND)
+            return Response(status_code=status.HTTP_204_NO_CONTENT)
+        else:
+            raise HTTPException(detail="Time não encontrado", status_code=status.HTTP_404_NOT_FOUND)
