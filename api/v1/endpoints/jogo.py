@@ -31,7 +31,7 @@ async def post_jogo(jogo: JogoSchema, db: AsyncSession = Depends(get_session)):
     return novo_jogo
 
 #get jogos
-@router.get('/', response_model=List[JogoSchema])
+@router.get('/', response_model=List[JogoSchema], status_code=status.HTTP_200_OK)
 async def get_atletas(db: AsyncSession = Depends(get_session)):
     async with db as session:
         query = select(JogoModel)
@@ -52,4 +52,5 @@ async def get_atletas(db: AsyncSession = Depends(get_session)):
                    jogo.time2_nome = time.nome
                    
            
+        # return jogos
         return jogos
