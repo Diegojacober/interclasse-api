@@ -14,6 +14,7 @@ from models.jogos import JogoModel
 from models.times import TimeModel
 from schemas.jogos_schema import JogoSchema
 from core.deps import get_session
+import datetime
 
 
 router = APIRouter()
@@ -35,6 +36,34 @@ async def post_jogo(jogo: JogoSchema, db: AsyncSession = Depends(get_session)):
 async def get_atletas(db: AsyncSession = Depends(get_session)):
     async with db as session:
         query = select(JogoModel)
+        result = await session.execute(query)
+        jogos: List[JogoModel] = result.scalars().all()
+        
+        query = select(TimeModel)
+        result = await session.execute(query)
+        times: List[TimeModel] = result.scalars().all()
+        
+        for jogo in jogos:
+            jogo.data_do_jogo = str(jogo.data_do_jogo)
+            for time in times:
+                if time.id == jogo.time1:
+                   jogo.time1_nome = time.nome
+                
+                if time.id == jogo.time2:
+                   jogo.time2_nome = time.nome
+                   
+           
+        # return jogos
+        return jogos
+    
+#get jogos
+@router.get('/today', response_model=List[JogoSchema], status_code=status.HTTP_200_OK)
+async def get_atletas(db: AsyncSession = Depends(get_session)):
+    async with db as session:
+        print(datetime.datetime.today())
+        search = "%{}%".format('2023-04-07')
+        query = select(JogoModel).filter(JogoModel.data_do_jogo.like(search))
+        # result = session.query(Customers).filter(Customers.name.like('Ra%'))
         result = await session.execute(query)
         jogos: List[JogoModel] = result.scalars().all()
         
