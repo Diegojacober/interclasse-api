@@ -12,6 +12,7 @@ from sqlalchemy.future import select
 
 from models.jogos import JogoModel
 from models.times import TimeModel
+from models.modalidades import ModalidadeModel
 from schemas.jogos_schema import JogoSchema
 from core.deps import get_session
 import datetime
@@ -61,7 +62,7 @@ async def get_atletas(db: AsyncSession = Depends(get_session)):
 async def get_atletas(db: AsyncSession = Depends(get_session)):
     async with db as session:
         print(datetime.datetime.today())
-        search = "%{}%".format('2023-04-07')
+        search = "%{}%".format('2023-04-10')
         query = select(JogoModel).filter(JogoModel.data_do_jogo.like(search))
         # result = session.query(Customers).filter(Customers.name.like('Ra%'))
         result = await session.execute(query)
@@ -71,9 +72,18 @@ async def get_atletas(db: AsyncSession = Depends(get_session)):
         result = await session.execute(query)
         times: List[TimeModel] = result.scalars().all()
         
+        query = select(ModalidadeModel)
+        result = await session.execute(query)
+        modalidades: List[ModalidadeModel] = result.scalars().all()
+        
         for jogo in jogos:
             jogo.data_do_jogo = str(jogo.data_do_jogo)
             for time in times:
+                
+                for modalidade in modalidades:
+                    if modalidade.id == time.modalidade_id:
+                        jogo.modalidade = modalidade.nome
+                
                 if time.id == jogo.time1:
                    jogo.time1_nome = time.nome
                 
@@ -81,5 +91,4 @@ async def get_atletas(db: AsyncSession = Depends(get_session)):
                    jogo.time2_nome = time.nome
                    
            
-        # return jogos
         return jogos

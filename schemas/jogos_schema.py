@@ -9,6 +9,7 @@ class JogoSchema(SCBaseModel):
     data_do_jogo: str
     time1_nome: Optional[str]
     time2_nome: Optional[str]
+    modalidade: Optional[str]
     
     class Config:
         orm_mode = True

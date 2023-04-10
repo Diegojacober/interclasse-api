@@ -5,9 +5,11 @@ from core.configs import settings
 from api.v1.api import api_router
 
 app = FastAPI(title="Interclasse API", docs_url='/docs')
+
 origins = [
-    "http://localhost:8080",
+    "http://localhost:8000",
 ]
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
