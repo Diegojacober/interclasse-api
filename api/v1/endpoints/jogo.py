@@ -61,10 +61,10 @@ async def get_atletas(db: AsyncSession = Depends(get_session)):
 @router.get('/today', response_model=List[JogoSchema], status_code=status.HTTP_200_OK)
 async def get_atletas(db: AsyncSession = Depends(get_session)):
     async with db as session:
-        print(datetime.datetime.today())
-        search = "%{}%".format('2023-04-10')
+        today = str(datetime.datetime.today())[:10]
+
+        search = "%{}%".format(today)
         query = select(JogoModel).filter(JogoModel.data_do_jogo.like(search))
-        # result = session.query(Customers).filter(Customers.name.like('Ra%'))
         result = await session.execute(query)
         jogos: List[JogoModel] = result.scalars().all()
         
@@ -81,14 +81,15 @@ async def get_atletas(db: AsyncSession = Depends(get_session)):
             for time in times:
                 
                 for modalidade in modalidades:
-                    if modalidade.id == time.modalidade_id:
+                    
+                    if time.modalidade_id == modalidade.id and jogo.time1 == time.id:
                         jogo.modalidade = modalidade.nome
+                     
                 
                 if time.id == jogo.time1:
                    jogo.time1_nome = time.nome
                 
                 if time.id == jogo.time2:
                    jogo.time2_nome = time.nome
-                   
-           
+
         return jogos

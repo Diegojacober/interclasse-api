@@ -45,6 +45,19 @@ async def post_time(time: TimeSchema, db: AsyncSession = Depends(get_session)):
     return "Adicionado"
 
 
+@router.get('/modalidade/{modalidade_id}', response_model=List[TimeSchema])
+async def get_times_per_modalidade(modalidade_id: int = Path(title="ID da modalidade dos times desejados", description="Deve ser maior que 0", gt=0),db: AsyncSession = Depends(get_session)):
+    
+    async with db as session:
+        query = select(TimeModel).where(TimeModel.modalidade_id == modalidade_id)
+        result = await session.execute(query)
+        times: TimeModel = result.scalars().all()
+
+        if times:
+            return times
+        else:
+            raise HTTPException(detail="Id não encontrado", status_code=status.HTTP_404_NOT_FOUND)
+
 #GET times
 @router.get('/', response_model=List[TimeSchema])
 async def get_times(db: AsyncSession = Depends(get_session)):
@@ -107,6 +120,8 @@ async def get_times(db: AsyncSession = Depends(get_session)):
                     time.jogador10_nome = atleta.nome          
        
         return times
+
+
 
 
     
