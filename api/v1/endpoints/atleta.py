@@ -1,7 +1,7 @@
 from typing import List
 
 from fastapi import APIRouter
-from fastapi import status
+from fastapi import status, UploadFile
 from fastapi import Depends
 from fastapi import HTTPException
 from fastapi import Response
@@ -15,7 +15,8 @@ from models.cursos import CursoModel
 from models.modalidades import ModalidadeModel
 from schemas.atletas_schema import AtletaSchema
 from core.deps import get_session
-
+import os
+from azure.storage.blob import BlobServiceClient
 
 router = APIRouter()
 
@@ -62,3 +63,18 @@ async def get_atletas(db: AsyncSession = Depends(get_session)):
                    
         return atletas
 
+@router.post('/upload', status_code=status.HTTP_201_CREATED)
+async def upload_image(image: UploadFile):
+    strorage_connection_string = 'DefaultEndpointsProtocol=https;AccountName=imagensinterclasse;AccountKey=BM/mVQXYFVf6gWn2k0Xd9Fj+jCbEv7C4nh/slDBcdMxgITFFHnpUuCYSSr+jdQkqxfcmziPllMy4+ASt95owUQ==;EndpointSuffix=core.windows.net'
+
+    blob_service_client = BlobServiceClient.from_connection_string(strorage_connection_string)
+    container_name = 'isimagefolder'
+    
+    blob_obj = blob_service_client.get_blob_client(container=container_name, blob=image.filename)        
+
+    with open(image.filename, 'wb') as f:
+        contents = await image.read()
+        f.write(contents)
+        blob_obj.upload_blob(contents)
+
+    return {"filename": image.filename, "content_type": image.content_type}
