@@ -13,9 +13,11 @@ from sqlalchemy.future import select
 from models.atletas import AtletaModel
 from models.cursos import CursoModel
 from models.modalidades import ModalidadeModel
+from models.pesquisas import ImageSearchModel
 from schemas.atletas_schema import AtletaSchema
+from schemas.pesquisa_schema import ImageSearchSchema
 from core.deps import get_session
-import os
+import os, datetime
 from azure.storage.blob import BlobServiceClient
 
 router = APIRouter()
@@ -62,6 +64,31 @@ async def get_atletas(db: AsyncSession = Depends(get_session)):
                     atleta.modalidade = modalidade.nome
                    
         return atletas
+    
+@router.get('/ultimapesquisa', response_model=AtletaSchema)
+async def get_last_search(db: AsyncSession = Depends(get_session)):    
+    async with db as session:
+        query = select(ImageSearchModel).order_by(ImageSearchModel.id.desc())
+        result = await session.execute(query)
+        last_record: ImageSearchModel = result.scalars().first()
+        
+        query = select(AtletaModel).where(AtletaModel.face_url == last_record.nome_imagem)
+        result = await session.execute(query)
+        atleta: AtletaModel = result.scalars().one_or_none()
+        
+        query = select(CursoModel).where(CursoModel.id == atleta.curso_id)
+        result = await session.execute(query)
+        curso: CursoModel = result.scalars().one_or_none()
+        
+        atleta.curso = curso.curso
+        
+        query = select(ModalidadeModel).where(ModalidadeModel.id == atleta.modalidade_id)
+        result = await session.execute(query)
+        modalidade: ModalidadeModel = result.scalars().one_or_none()
+        
+        atleta.modalidade = modalidade.nome
+    return atleta
+
 
 @router.post('/upload', status_code=status.HTTP_201_CREATED)
 async def upload_image(image: UploadFile):
@@ -78,3 +105,13 @@ async def upload_image(image: UploadFile):
         blob_obj.upload_blob(contents)
 
     return {"filename": image.filename, "content_type": image.content_type}
+
+@router.post('/searchimage',status_code=status.HTTP_201_CREATED, response_model=ImageSearchSchema)
+async def create_search_now(dados: ImageSearchSchema,db: AsyncSession = Depends(get_session)):
+    data_e_hora_atual = str(datetime.datetime.now())[0:19]
+    
+    nova_pesquisa = ImageSearchModel(nome_imagem=dados.nome_imagem,horario=data_e_hora_atual)
+    db.add(nova_pesquisa)
+    await db.commit()
+
+    return nova_pesquisa
