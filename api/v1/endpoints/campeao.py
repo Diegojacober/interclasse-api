@@ -24,17 +24,7 @@ import datetime
 router = APIRouter()
 
 
-@router.post("/", status_code=status.HTTP_201_CREATED, response_model= CampeaoSchema)
-async def post_campeao(campeao: CampeaoSchema, db: AsyncSession = Depends(get_session)):
-    novo_campeao = CampeaoModel(modalidade_id=campeao.modalidade_id, time=campeao.time)
-
-    db.add(novo_campeao)
-    await db.commit()
-
-    return novo_campeao
-
-
-@router.get('/', response_model=List[CampeaoSchema], status_code=status.HTTP_200_OK)
+@router.get('/campeao', response_model=List[CampeaoSchema], status_code=status.HTTP_200_OK)
 async def get_campeoes(db: AsyncSession = Depends(get_session)):
     async with db as session:
         query = select(CampeaoModel)
@@ -62,3 +52,14 @@ async def get_campeoes(db: AsyncSession = Depends(get_session)):
                   
         return campeoes
     
+
+
+
+@router.post("/", status_code=status.HTTP_201_CREATED, response_model= CampeaoSchema)
+async def post_campeao(campeao: CampeaoSchema, db: AsyncSession = Depends(get_session)):
+    novo_campeao = CampeaoModel(modalidade_id=campeao.modalidade_id, time=campeao.time)
+
+    db.add(novo_campeao)
+    await db.commit()
+
+    return novo_campeao
