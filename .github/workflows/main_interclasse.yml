@@ -2,7 +2,7 @@
 # More GitHub Actions for Azure: https://github.com/Azure/actions
 # More info on Python, GitHub Actions, and Azure App Service: https://aka.ms/python-webapps-actions
 
-name: Build and deploy Python app to Azure Web App - api-interclasse
+name: Build and deploy Python app to Azure Web App - interclasse
 
 on:
   push:
@@ -26,9 +26,13 @@ jobs:
         run: |
           python -m venv venv
           source venv/bin/activate
-      
+  
+        
       - name: Install dependencies
-        run: pip install -r requirements.txt
+        
+        run: |
+          pip install --upgrade pip;
+          pip install -r requirements.txt;
         
       # Optional: Add step to run tests here (PyTest, Django test suites, etc.)
       
@@ -58,6 +62,6 @@ jobs:
         uses: azure/webapps-deploy@v2
         id: deploy-to-webapp
         with:
-          app-name: 'api-interclasse'
+          app-name: 'interclasse'
           slot-name: 'Production'
-          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_43E022B1FA7C41AB8FCB61E3C377B50D }}
+          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_29361654A79443DB8E86EC6DE98C1EAA }}
