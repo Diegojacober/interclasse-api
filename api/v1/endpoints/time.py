@@ -24,7 +24,34 @@ router = APIRouter()
 @router.post("/", status_code=status.HTTP_201_CREATED)
 async def post_time(time: TimeSchema, db: AsyncSession = Depends(get_session)):
     
-
+    
+    if time.jogador2 == 0:
+        time.jogador2 = None
+        
+    if time.jogador3 == 0:
+        time.jogador3 = None
+    
+    if time.jogador4 == 0:
+        time.jogador4 = None
+        
+    if time.jogador5 == 0:
+        time.jogador5 = None    
+    
+    if time.jogador6 == 0:
+        time.jogador6 = None
+    
+    if time.jogador7 == 0:
+        time.jogador7 = None
+        
+    if time.jogador8 == 0:
+        time.jogador8 = None
+        
+    if time.jogador9 == 0:
+        time.jogador9 = None  
+        
+    if time.jogador10 == 0:
+        time.jogador10 = None
+    
     novo_time = TimeModel(nome=time.nome,
                               pontos=time.pontos,
                               jogador1=time.jogador1,

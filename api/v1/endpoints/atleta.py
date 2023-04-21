@@ -68,6 +68,26 @@ async def get_atletas(db: AsyncSession = Depends(get_session)):
                    
         return atletas
     
+#GET atletas
+@router.get('/modalidade/{id_modalidade}', response_model=List[AtletaSchema])
+async def get_atletas(id_modalidade:int,db: AsyncSession = Depends(get_session)):
+    async with db as session:
+        query = select(AtletaModel).where(AtletaModel.modalidade_id == id_modalidade)
+        result = await session.execute(query)
+        atletas: List[AtletaModel] = result.scalars().fetchall()
+        
+        query = select(CursoModel)
+        result = await session.execute(query)
+        cursos: List[CursoModel] = result.scalars().all()
+        
+                   
+        for atleta in atletas:
+            for curso in cursos:
+                if curso.id == atleta.curso_id:
+                   atleta.curso = curso.curso
+                   
+        return atletas
+    
 @router.get('/ultimapesquisa', response_model=AtletaSchema)
 async def get_last_search(db: AsyncSession = Depends(get_session)):    
     async with db as session:
