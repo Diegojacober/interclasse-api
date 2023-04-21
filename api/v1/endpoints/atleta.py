@@ -14,8 +14,11 @@ from models.atletas import AtletaModel
 from models.cursos import CursoModel
 from models.modalidades import ModalidadeModel
 from models.pesquisas import ImageSearchModel
+from models.jogos import JogoModel
+from models.times import TimeModel
 from schemas.atletas_schema import AtletaSchema
 from schemas.pesquisa_schema import ImageSearchSchema
+from schemas.times_schema import TimeSchema
 from core.deps import get_session
 import os, datetime
 from azure.storage.blob import BlobServiceClient
@@ -87,6 +90,66 @@ async def get_last_search(db: AsyncSession = Depends(get_session)):
         modalidade: ModalidadeModel = result.scalars().one_or_none()
         
         atleta.modalidade = modalidade.nome
+        
+        query = select(TimeModel).where((TimeModel.jogador1 == atleta.id) | (TimeModel.jogador2 == atleta.id) |
+                                        (TimeModel.jogador2 == atleta.id) | (TimeModel.jogador3 == atleta.id) |
+                                        (TimeModel.jogador4 == atleta.id) | (TimeModel.jogador5 == atleta.id) |
+                                        (TimeModel.jogador6 == atleta.id) | (TimeModel.jogador7 == atleta.id) |
+                                        (TimeModel.jogador8 == atleta.id) | (TimeModel.jogador9 == atleta.id) | (TimeModel.jogador10 == atleta.id))
+        
+        result = await session.execute(query)
+        time: TimeModel = result.scalars().one_or_none()
+        
+        data_e_hora_atual = str(datetime.datetime.now())[0:11]
+        
+        #mandante
+        query = select(JogoModel).where((JogoModel.data_do_jogo >= data_e_hora_atual)).where(JogoModel.time1 == time.id)
+        result = await session.execute(query)
+        jogos: JogoModel = result.scalars().fetchall()
+        
+        lista_jogos = []
+        for jogo in jogos:
+            query = select(TimeModel).where(TimeModel.id == jogo.time1)
+            result = await session.execute(query)
+            time1: TimeModel = result.scalars().one_or_none()
+            jogo.time1_nome = time1.nome
+            
+            query = select(TimeModel).where(TimeModel.id == jogo.time2)
+            result = await session.execute(query)
+            time1: TimeModel = result.scalars().one_or_none()
+            jogo.time2_nome = time1.nome
+
+            
+            jogo_dict = {"time1": jogo.time1_nome, "time2":jogo.time2_nome,"data_do_jogo": jogo.data_do_jogo}
+            lista_jogos.append(jogo_dict.copy())
+            
+        atleta.proximos_jogos = lista_jogos.copy()
+        
+        #visantante
+        query = select(JogoModel).where((JogoModel.data_do_jogo >= data_e_hora_atual)).where(JogoModel.time2 == time.id)
+        result = await session.execute(query)
+        jogos: JogoModel = result.scalars().fetchall()
+        
+        lista_jogos = []
+        for jogo in jogos:
+            query = select(TimeModel).where(TimeModel.id == jogo.time1)
+            result = await session.execute(query)
+            time1: TimeModel = result.scalars().one_or_none()
+            jogo.time1_nome = time1.nome
+            
+            query = select(TimeModel).where(TimeModel.id == jogo.time2)
+            result = await session.execute(query)
+            time1: TimeModel = result.scalars().one_or_none()
+            jogo.time2_nome = time1.nome
+
+            
+            jogo_dict = {"time1": jogo.time1_nome, "time2":jogo.time2_nome,"data_do_jogo": jogo.data_do_jogo}
+            lista_jogos.append(jogo_dict.copy())
+            
+        atleta.proximos_jogos += lista_jogos.copy()
+        
+        
+        
     return atleta
 
 

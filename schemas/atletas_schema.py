@@ -11,6 +11,7 @@ class AtletaSchema(SCBaseModel):
     modalidade_id: int
     curso: Optional[str]
     modalidade: Optional[str]
-
+    proximos_jogos: Optional[list]
+    
     class Config:
         orm_mode = True
