@@ -119,6 +119,8 @@ async def get_last_search(db: AsyncSession = Depends(get_session)):
         
         result = await session.execute(query)
         time: TimeModel = result.scalars().one_or_none()
+        print(time.id)
+        print(time.nome)
         
         data_e_hora_atual = str(datetime.datetime.now())[0:11]
         
