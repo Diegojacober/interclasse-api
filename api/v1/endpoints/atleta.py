@@ -9,6 +9,8 @@ from fastapi import Path
 
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
+from sqlalchemy import or_
+
 
 from models.atletas import AtletaModel
 from models.cursos import CursoModel
@@ -88,7 +90,7 @@ async def get_atletas(id_modalidade:int,db: AsyncSession = Depends(get_session))
                    
         return atletas
     
-@router.get('/ultimapesquisa', response_model=AtletaSchema)
+@router.get('/ultimapesquisa')
 async def get_last_search(db: AsyncSession = Depends(get_session)):    
     async with db as session:
         query = select(ImageSearchModel).order_by(ImageSearchModel.id.desc())
@@ -98,6 +100,9 @@ async def get_last_search(db: AsyncSession = Depends(get_session)):
         query = select(AtletaModel).where(AtletaModel.face_url == last_record.nome_imagem)
         result = await session.execute(query)
         atleta: AtletaModel = result.scalars().one_or_none()
+        
+        if atleta == None:
+            return {"msg":"Jogador não encontrado"}
         
         query = select(CursoModel).where(CursoModel.id == atleta.curso_id)
         result = await session.execute(query)
@@ -111,16 +116,20 @@ async def get_last_search(db: AsyncSession = Depends(get_session)):
         
         atleta.modalidade = modalidade.nome
         
-        query = select(TimeModel).where((TimeModel.jogador1 == atleta.id) | (TimeModel.jogador2 == atleta.id) |
-                                        (TimeModel.jogador2 == atleta.id) | (TimeModel.jogador3 == atleta.id) |
-                                        (TimeModel.jogador4 == atleta.id) | (TimeModel.jogador5 == atleta.id) |
-                                        (TimeModel.jogador6 == atleta.id) | (TimeModel.jogador7 == atleta.id) |
-                                        (TimeModel.jogador8 == atleta.id) | (TimeModel.jogador9 == atleta.id) | (TimeModel.jogador10 == atleta.id))
+        query = select(TimeModel).where((TimeModel.jogador1 == atleta.id) | (TimeModel.jogador6 == atleta.id) |
+                                        (TimeModel.jogador2 == atleta.id) | (TimeModel.jogador7 == atleta.id) |
+                                        (TimeModel.jogador3 == atleta.id) | (TimeModel.jogador8 == atleta.id) |
+                                        (TimeModel.jogador4 == atleta.id) | (TimeModel.jogador9 == atleta.id) |
+                                        (TimeModel.jogador5 == atleta.id) | (TimeModel.jogador10 == atleta.id))
+        
+     
+        
         
         result = await session.execute(query)
-        time: TimeModel = result.scalars().one_or_none()
-        print(time.id)
-        print(time.nome)
+        time = result.scalars().first()
+        if time.id == None:
+            return {"msg": "O Jogador não tem time"}
+        
         
         data_e_hora_atual = str(datetime.datetime.now())[0:11]
         
